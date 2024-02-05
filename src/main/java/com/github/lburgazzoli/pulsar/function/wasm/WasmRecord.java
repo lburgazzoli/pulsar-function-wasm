@@ -56,6 +56,10 @@ public class WasmRecord {
         return this.record.getProperties().get(name);
     }
 
+    public void removeProperty(String name) {
+        this.record.getProperties().remove(name);
+    }
+
     public void value(byte[] value) {
         this.record = builder().value(value).build();
     }

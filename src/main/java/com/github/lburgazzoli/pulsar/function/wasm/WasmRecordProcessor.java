@@ -127,6 +127,12 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
                     List.of(ValueType.I32, ValueType.I32, ValueType.I32, ValueType.I32),
                     List.of()),
                 new HostFunction(
+                    this::removePropertyFn,
+                    MODULE_NAME,
+                    "pulsar_remove_property",
+                    List.of(ValueType.I32, ValueType.I32),
+                    List.of()),
+                new HostFunction(
                     this::getKeyFn,
                     MODULE_NAME,
                     "pulsar_get_key",
@@ -231,6 +237,16 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
         final byte[] propertyData = instance.memory().readBytes(headerDataAddr, headerDataSize);
 
         this.ref.get().property(propertyName, new String(propertyData, StandardCharsets.UTF_8));
+
+        return new Value[] {};
+    }
+
+    private Value[] removePropertyFn(Instance instance, Value... args) {
+        final int addr = args[0].asInt();
+        final int size = args[1].asInt();
+        final String propertyName = instance.memory().readString(addr, size);
+
+        this.ref.get().removeProperty(propertyName);
 
         return new Value[] {};
     }

@@ -34,6 +34,8 @@ extern "C" {
 
 	fn pulsar_set_property(key_ptr: *const u8, lkey_len: i32, val_ptr: *const u8, val_len: i32);
 	fn pulsar_get_property(ptr: *const u8, len: i32) -> u64;
+	fn pulsar_remove_property(ptr: *const u8, len: i32);
+
 
 	fn pulsar_set_record_topic(ptr: *const u8, len: i32);
 	fn pulsar_get_record_topic() -> u64;
@@ -116,6 +118,16 @@ pub fn set_record_property(name: String, val: Vec<u8>) {
     };
 }
 
+
+pub fn remove_record_property(name: String) {
+    let mut hn_data = name.into_bytes();
+    let hn_len = hn_data.len();
+    let hn_ptr = hn_data.as_mut_ptr();
+
+    unsafe {
+        pulsar_remove_property(hn_ptr, hn_len as i32)
+    };
+}
 
 pub fn get_record_topic() -> Vec<u8> {
     let ptr_and_len = unsafe {

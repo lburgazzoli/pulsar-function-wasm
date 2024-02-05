@@ -1,0 +1,15 @@
+target
+
+*.iml
+
+.idea
+.project
+.metadata
+.settings
+.factorypath
+.classpath
+.gradle/
+
+.DS_Store
+tmp/
+build/

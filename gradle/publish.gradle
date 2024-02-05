@@ -1,0 +1,23 @@
+apply plugin: "signing"
+apply plugin: "maven-publish"
+apply plugin: "io.github.gradle-nexus.publish-plugin"
+
+ext {
+    if (!project.hasProperty('nexusUsername')) {
+        nexusUsername = "$System.env.OSSRH_USERNAME"
+    }
+    if (!project.hasProperty('nexusPassword')) {
+        nexusPassword = "$System.env.OSSRH_PASSWORD"
+    }
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            username = nexusUsername
+            password = nexusPassword
+        }
+    }
+}
+
+//afterReleaseBuild.dependsOn publishToSonatype

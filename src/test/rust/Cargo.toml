@@ -1,0 +1,17 @@
+[package]
+name    = "functions"
+version = "0.1.0"
+authors = ["lburgazzoli@gmail.com"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+path = "functions.rs"
+
+[dependencies]
+pulsar-function-wasm-sdk = { path = "../../main/rust", version = "=0.1.0" }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1

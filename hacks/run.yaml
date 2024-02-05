@@ -1,0 +1,34 @@
+tenant: "public"
+namespace: "default"
+name: "camel"
+inputs:
+  - "persistent://public/default/input-1"
+output: "persistent://public/default/output-1"
+jar: "../../target/camel-pulsar-function-999-SNAPSHOT.jar"
+className: "com.github.lburgazzoli.camel.pulsar.CamelFunction"
+logTopic: "persistent://public/default/logging-function-logs"
+userConfig:
+  steps: |
+    - setHeader:
+        name: "source"
+        jq: '.source'
+    - choice:
+        when:
+        - jq: '.source == "sensor-1"'
+          steps:
+          - setProperty:
+              name: 'pulsar.apache.org/function.output'
+              constant: 'far'
+          - setBody:
+              jq:
+                expression: '.data'
+                resultType: 'java.lang.String'
+        - jq: '.source == "sensor-2"'
+          steps:
+          - setProperty:
+              name: 'pulsar.apache.org/function.output'
+              constant: 'near'
+          - setBody:
+              jq:
+                expression: '.data'
+                resultType: 'java.lang.String'

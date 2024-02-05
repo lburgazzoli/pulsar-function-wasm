@@ -1,0 +1,16 @@
+<Configuration status="warn">
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout
+                pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c:%L - %m%n" />
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="pulsar.container" level="INFO">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="console" />
+        </Root>
+    </Loggers>
+</Configuration>

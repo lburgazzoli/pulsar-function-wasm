@@ -1,0 +1,13 @@
+apply plugin: "com.diffplug.spotless"
+
+spotless {
+    java {
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        indentWithSpaces(4)
+        endWithNewline()
+        importOrderFile(rootProject.file('etc/eclipse.importorder'))
+        eclipse().configFile(rootProject.file('etc/eclipse-formatter-config.xml'))
+        targetExclude("build/generated/**/*.java")
+    }
+}

@@ -1,0 +1,59 @@
+[versions]
+log4j = "2.22.1"
+slf4j = "2.0.11"
+assertj = "3.25.1"
+junit = "5.10.1"
+testcontainers = "1.19.3"
+awaitility = "4.2.0"
+pulsar = "3.1.2"
+jackson = "2.16.1"
+guava = "33.0.0-jre"
+groovy = "4.0.15"
+spock = "2.3-groovy-4.0"
+chicory = "0.0.7"
+
+versionsPlugin = "0.50.0"
+spotlessPlugin = "6.24.0"
+shadowPlugin = "8.1.1"
+testLoggerPlugin = "4.0.0"
+nexusPublishPlugin = "1.3.0"
+axionReleasePlugin = "1.16.1"
+testRetryPlugin = "1.5.8"
+
+[libraries]
+slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+jacksonDataFormatYaml =  { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
+assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
+testcontainersPulsar = { module = "org.testcontainers:pulsar", version.ref = "testcontainers" }
+testcontainersJunit = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
+testcontainersSpock = { module = "org.testcontainers:spock", version.ref = "testcontainers" }
+awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }
+log4jApi = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
+log4jCore = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
+log4jSlf4j = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4j" }
+log4j12 = { module = "org.apache.logging.log4j:log4j-1.2-api", version.ref = "log4j" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+chikoryRuntime = { module = "com.dylibso.chicory:runtime", version.ref = "chicory"}
+chicoryWasi = { module = "com.dylibso.chicory:wasi", version.ref = "chicory"}
+pulsarFunctions = { module = "org.apache.pulsar:pulsar-functions-api", version.ref = "pulsar"}
+pulsarFunctionsLocalRunner = { module = "org.apache.pulsar:pulsar-functions-local-runner-original", version.ref = "pulsar"}
+
+[bundles]
+log4j     = [ "log4jApi", "log4jCore", "log4jSlf4j", "log4j12" ]
+testing   = [ "junit", "assertj", "awaitility" ]
+testingIt = [ "testcontainers", "testcontainersPulsar", "testcontainersJunit", "testcontainersSpock", "pulsarFunctionsLocalRunner"]
+jackson   = [ "jacksonDataFormatYaml" ]
+pulsar    = [ "pulsarFunctions" ]
+chicory      = [ "chikoryRuntime", "chicoryWasi" ]
+
+[plugins]
+shadow       = { id = "com.github.johnrengelman.shadow", version.ref = "shadowPlugin" }
+versions     = { id = "com.github.ben-manes.versions", version.ref = "versionsPlugin" }
+spotless     = { id = "com.diffplug.spotless", version.ref = "spotlessPlugin" }
+nexusPublish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexusPublishPlugin" }
+testLogger   = { id = "com.adarshr.test-logger", version.ref = "testLoggerPlugin" }
+axionRelease = { id = "pl.allegro.tech.build.axion-release", version.ref = "axionReleasePlugin" }
+testRetry    = { id = "org.gradle.test-retry", version.ref = "testRetryPlugin" }
+

@@ -1,0 +1,12 @@
+apply plugin: "pl.allegro.tech.build.axion-release"
+
+
+scmVersion {
+    tag {
+        prefix = 'jetcd-'
+    }
+}
+
+allprojects {
+    project.version = scmVersion.version
+}

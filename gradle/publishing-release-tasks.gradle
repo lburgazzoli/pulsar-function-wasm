@@ -1,0 +1,9 @@
+apply plugin: 'maven-publish'
+
+task pubblications {
+    doLast {
+        project.publishing.publications.each { publication ->
+            println "Publication $publication.name [$publication.groupId/$publication.artifactId/$publication.version]"
+        }
+    }
+}

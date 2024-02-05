@@ -1,0 +1,3 @@
+name: wasm-function
+description: wasm-function
+functionClass: com.github.lburgazzoli.pulsar.function.WasmFunction

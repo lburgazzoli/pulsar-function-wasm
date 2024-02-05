@@ -1,14 +1,10 @@
 package com.github.lburgazzoli.pulsar.function.wasm
 
-import com.github.lburgazzoli.pulsar.function.wasm.support.PulsarTestClient
+import com.github.lburgazzoli.pulsar.function.wasm.support.PulsarContainer
 import com.github.lburgazzoli.pulsar.function.wasm.support.PulsarTestSpec
 import groovy.util.logging.Slf4j
 import org.apache.pulsar.client.api.Schema
-import org.slf4j.LoggerFactory
-import org.testcontainers.containers.PulsarContainer
-import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.spock.Testcontainers
-import org.testcontainers.utility.DockerImageName
 import spock.lang.Shared
 import spock.lang.Timeout
 
@@ -18,13 +14,8 @@ import java.util.concurrent.TimeUnit
 @Slf4j
 @Testcontainers
 class WasmFunctionTest extends PulsarTestSpec {
-    private static final String IMAGE_NAME = 'apachepulsar/pulsar:3.1.0'
-    private static final DockerImageName IMAGE = DockerImageName.parse(IMAGE_NAME)
-
     @Shared
-    PulsarContainer PULSAR = new PulsarContainer(IMAGE)
-            .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger('pulsar.container')))
-
+    PulsarContainer PULSAR = new PulsarContainer()
 
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     def 'to_upper'() {
@@ -40,7 +31,7 @@ class WasmFunctionTest extends PulsarTestSpec {
 
             r.start(false)
 
-            def c = new PulsarTestClient<>(Schema.BYTES, PULSAR.pulsarBrokerUrl)
+            def c = PULSAR.client(Schema.BYTES)
 
         when:
             c.send("sensors", data.getBytes(StandardCharsets.UTF_8))
@@ -65,7 +56,7 @@ class WasmFunctionTest extends PulsarTestSpec {
 
             r.start(false)
 
-            def c = new PulsarTestClient<>(Schema.BYTES, PULSAR.pulsarBrokerUrl)
+            def c = PULSAR.client(Schema.BYTES)
         when:
             c.send("sensors", value.getBytes(StandardCharsets.UTF_8))
         then:

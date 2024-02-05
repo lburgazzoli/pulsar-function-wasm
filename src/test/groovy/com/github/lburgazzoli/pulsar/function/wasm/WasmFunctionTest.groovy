@@ -10,8 +10,10 @@ import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.spock.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import spock.lang.Shared
+import spock.lang.Timeout
 
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.TimeUnit
 
 @Slf4j
 @Testcontainers
@@ -24,6 +26,7 @@ class WasmFunctionTest extends PulsarTestSpec {
             .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger('pulsar.container')))
 
 
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     def 'to_upper'() {
         given:
             def data = 'foo'
@@ -50,6 +53,7 @@ class WasmFunctionTest extends PulsarTestSpec {
             closeQuietly(r)
     }
 
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     def 'cbr'(String value, String topic) {
         given:
             def r = runner(

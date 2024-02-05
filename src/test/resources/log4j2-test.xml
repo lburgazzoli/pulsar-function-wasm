@@ -6,7 +6,7 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="pulsar.container" level="INFO">
+        <Logger name="com.github.lburgazzoli.pulsar.function.wasm.support" level="DEBUG">
             <AppenderRef ref="console"/>
         </Logger>
         <Root level="info">

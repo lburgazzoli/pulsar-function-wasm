@@ -12,7 +12,7 @@ groovy = "4.0.15"
 spock = "2.3-groovy-4.0"
 chicory = "0.0.7"
 
-versionsPlugin = "0.50.0"
+versionsPlugin = "0.51.0"
 spotlessPlugin = "6.24.0"
 shadowPlugin = "8.1.1"
 testLoggerPlugin = "4.0.0"

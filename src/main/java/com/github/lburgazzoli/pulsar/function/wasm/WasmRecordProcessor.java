@@ -16,6 +16,7 @@ import com.dylibso.chicory.runtime.HostFunction;
 import com.dylibso.chicory.runtime.HostImports;
 import com.dylibso.chicory.runtime.Instance;
 import com.dylibso.chicory.runtime.Module;
+import com.dylibso.chicory.runtime.WasmFunctionHandle;
 import com.dylibso.chicory.runtime.exceptions.WASMMachineException;
 import com.dylibso.chicory.wasm.types.Value;
 import com.dylibso.chicory.wasm.types.ValueType;
@@ -54,7 +55,6 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
         this.dealloc = this.instance.export(FN_DEALLOC);
     }
 
-    @SuppressWarnings({ "unchecked" })
     @Override
     public Record<byte[]> apply(Context context) {
         try {
@@ -114,69 +114,58 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
 
     private HostImports imports() {
         HostFunction[] functions = new HostFunction[] {
-                new HostFunction(
+                wrap(
                     this::getPropertyFn,
-                    MODULE_NAME,
                     "pulsar_get_property",
                     List.of(ValueType.I32, ValueType.I32),
                     List.of(ValueType.I64)),
-                new HostFunction(
+                wrap(
                     this::setPropertyFn,
-                    MODULE_NAME,
                     "pulsar_set_property",
                     List.of(ValueType.I32, ValueType.I32, ValueType.I32, ValueType.I32),
                     List.of()),
-                new HostFunction(
+                wrap(
                     this::removePropertyFn,
-                    MODULE_NAME,
                     "pulsar_remove_property",
                     List.of(ValueType.I32, ValueType.I32),
                     List.of()),
-                new HostFunction(
+                wrap(
                     this::getKeyFn,
-                    MODULE_NAME,
                     "pulsar_get_key",
                     List.of(),
                     List.of(ValueType.I64)),
-                new HostFunction(
+                wrap(
                     this::setKeyFn,
-                    MODULE_NAME,
                     "pulsar_set_key",
                     List.of(ValueType.I32, ValueType.I32),
                     List.of()),
-                new HostFunction(
+                wrap(
                     this::getValueFn,
-                    MODULE_NAME,
                     "pulsar_get_value",
                     List.of(),
                     List.of(ValueType.I64)),
-                new HostFunction(
+                wrap(
                     this::setValueFn,
-                    MODULE_NAME,
                     "pulsar_set_value",
                     List.of(ValueType.I32, ValueType.I32),
                     List.of()),
-                new HostFunction(
+                wrap(
                     this::getRecordTopicFn,
-                    MODULE_NAME,
                     "pulsar_get_record_topic",
                     List.of(),
                     List.of(ValueType.I64)),
-                new HostFunction(
+                wrap(
                     this::setRecordTopicFn,
-                    MODULE_NAME,
                     "pulsar_set_record_topic",
                     List.of(ValueType.I32, ValueType.I32),
                     List.of()),
-                new HostFunction(
+                wrap(
                     this::getDestinationTopicNameFn,
-                    MODULE_NAME,
                     "pulsar_get_destination_topic",
                     List.of(),
                     List.of(ValueType.I64)),
-                new HostFunction(
+                wrap(
                     this::setDestinationTopicNameFn,
-                    MODULE_NAME,
                     "pulsar_set_destination_topic",
                     List.of(ValueType.I32, ValueType.I32),
                     List.of())
@@ -202,6 +191,41 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
 
         return Value.i64(ptrAndSize);
 
+    }
+
+    /**
+     * Wrap a {@link WasmFunctionHandle} so that we can add some per function metric.
+     *
+     * @param  handle      the {@link WasmFunctionHandle} to be executed
+     * @param  name        the name fo the host function
+     * @param  paramTypes  the list of parameters types expected by the function
+     * @param  returnTypes the list of return types produces by the functions
+     * @return             an instance of {@link HostFunction}
+     */
+    private HostFunction wrap(
+        WasmFunctionHandle handle,
+        String name,
+        List<ValueType> paramTypes,
+        List<ValueType> returnTypes) {
+
+        final String invocations = String.format("wasm.%s.%s.invocations", MODULE_NAME, name);
+        final String failures = String.format("wasm.%s.%s.failures", MODULE_NAME, name);
+
+        return new HostFunction(
+            (Instance instance, Value... args) -> {
+                WasmRecord record = ref.get();
+                try {
+                    record.context().recordMetric(invocations, 1);
+                    return handle.apply(instance, args);
+                } catch (Exception e) {
+                    record.context().recordMetric(failures, 1);
+                    throw e;
+                }
+            },
+            MODULE_NAME,
+            name,
+            paramTypes,
+            returnTypes);
     }
 
     //

@@ -30,7 +30,7 @@ class PulsarTestSpec extends Specification {
         if (closeable != null) {
             try {
                 closeable.close();
-            } catch (final IOException ignored) {
+            } catch (final IOException|InterruptedException ignored) {
             }
         }
     }

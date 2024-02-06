@@ -6,10 +6,10 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="com.github.lburgazzoli.pulsar.function.wasm.support" level="DEBUG">
+        <Logger name="com.github.lburgazzoli.pulsar.function.wasm.support" level="WARN" additivity="false">
             <AppenderRef ref="console"/>
         </Logger>
-        <Root level="info">
+        <Root level="INFO">
             <AppenderRef ref="console" />
         </Root>
     </Loggers>

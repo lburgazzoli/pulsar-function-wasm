@@ -1,6 +1,5 @@
 package com.github.lburgazzoli.pulsar.function.wasm;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -28,7 +27,6 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
     public static final String FN_ALLOC = "alloc";
     public static final String FN_DEALLOC = "dealloc";
 
-    private final Module module;
     private final String functionName;
 
     private final Instance instance;
@@ -43,12 +41,14 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
         Module module,
         String functionName) {
 
+        Objects.requireNonNull(module);
+        Objects.requireNonNull(functionName);
+
         this.lock = new Object();
         this.ref = new AtomicReference<>();
 
-        this.module = Objects.requireNonNull(module);
         this.functionName = Objects.requireNonNull(functionName);
-        this.instance = this.module.instantiate(imports());
+        this.instance = module.instantiate(imports());
         this.function = this.instance.export(this.functionName);
         this.alloc = this.instance.export(FN_ALLOC);
         this.dealloc = this.instance.export(FN_DEALLOC);
@@ -247,7 +247,7 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
 
         final String propertyName = instance.memory().readString(addr, size);
         final String propertyData = this.ref.get().property(propertyName);
-        byte[] data = propertyData != null ? propertyData.getBytes(StandardCharsets.UTF_8) : new byte[] {};
+        byte[] data = propertyData != null ? WasmSupport.bytes(propertyData) : WasmSupport.emptyByteArray();
 
         return new Value[] {
                 write(data)
@@ -263,7 +263,7 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
         final String propertyName = instance.memory().readString(headerNameAddr, headerNameSize);
         final byte[] propertyData = instance.memory().readBytes(headerDataAddr, headerDataSize);
 
-        this.ref.get().property(propertyName, new String(propertyData, StandardCharsets.UTF_8));
+        this.ref.get().property(propertyName, WasmSupport.string(propertyData));
 
         return new Value[] {};
     }
@@ -284,8 +284,8 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
 
     private Value[] getKeyFn(Instance instance, Value... args) {
         final byte[] rawData = this.ref.get().key()
-            .map(v -> v.getBytes(StandardCharsets.UTF_8))
-            .orElseGet(() -> new byte[] {});
+            .map(WasmSupport::bytes)
+            .orElseGet(WasmSupport::emptyByteArray);
 
         return new Value[] {
                 write(rawData)
@@ -330,8 +330,8 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
 
     private Value[] getRecordTopicFn(Instance instance, Value... args) {
         byte[] rawData = this.ref.get()
-            .recordTopic().map(v -> v.getBytes(StandardCharsets.UTF_8))
-            .orElseGet(() -> new byte[] {});
+            .recordTopic().map(WasmSupport::bytes)
+            .orElseGet(WasmSupport::emptyByteArray);
 
         return new Value[] {
                 write(rawData)
@@ -353,7 +353,7 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
     //
 
     private Value[] getDestinationTopicNameFn(Instance instance, Value... args) {
-        byte[] rawData = this.ref.get().destinationTopic().getBytes(StandardCharsets.UTF_8);
+        byte[] rawData = WasmSupport.bytes(this.ref.get().destinationTopic());
 
         return new Value[] {
                 write(rawData)

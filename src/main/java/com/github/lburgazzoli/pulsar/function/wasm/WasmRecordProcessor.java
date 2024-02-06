@@ -171,7 +171,12 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
                     this::setDestinationTopicNameFn,
                     "pulsar_set_destination_topic",
                     List.of(ValueType.I32, ValueType.I32),
-                    List.of())
+                    List.of()),
+                wrap(
+                    this::getSchemaFn,
+                    "pulsar_get_schema",
+                    List.of(),
+                    List.of(ValueType.I64)),
         };
 
         return new HostImports(functions);
@@ -322,6 +327,18 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
         this.ref.get().value(value);
 
         return new Value[] {};
+    }
+
+    //
+    // Schema
+    //
+
+    private Value[] getSchemaFn(Instance instance, Value... args) {
+        final byte[] rawData = this.ref.get().schema().getSchemaInfo().getSchema();
+
+        return new Value[] {
+            write(rawData)
+        };
     }
 
     //

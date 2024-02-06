@@ -2,6 +2,7 @@ package com.github.lburgazzoli.pulsar.function.wasm;
 
 import java.util.Optional;
 
+import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.functions.api.Context;
 import org.apache.pulsar.functions.api.Record;
 import org.apache.pulsar.functions.api.utils.FunctionRecord;
@@ -18,6 +19,10 @@ public class WasmRecord {
 
     public Context context() {
         return context;
+    }
+
+    public Schema<byte[]> schema() {
+        return record.getSchema();
     }
 
     public Record<byte[]> record() {

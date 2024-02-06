@@ -32,6 +32,8 @@ extern "C" {
 	fn pulsar_set_value(ptr: *const u8, len: i32);
 	fn pulsar_get_value() -> u64;
 
+	fn pulsar_get_schema() -> u64;
+
 	fn pulsar_set_property(key_ptr: *const u8, lkey_len: i32, val_ptr: *const u8, val_len: i32);
 	fn pulsar_get_property(ptr: *const u8, len: i32) -> u64;
 	fn pulsar_remove_property(ptr: *const u8, len: i32);
@@ -64,6 +66,19 @@ pub fn set_record_value(v: Vec<u8>) {
      unsafe {
         pulsar_set_value(out_ptr, out_len as i32);
      };
+}
+
+pub fn get_record_schema() -> Vec<u8> {
+    let ptr_and_len = unsafe {
+        pulsar_get_schema()
+    };
+
+    let in_ptr = (ptr_and_len >> 32) as *mut u8;
+    let in_len = (ptr_and_len as u32) as usize;
+
+    return unsafe {
+        Vec::from_raw_parts(in_ptr, in_len, in_len)
+    };
 }
 
 pub fn get_record_key() -> Vec<u8> {

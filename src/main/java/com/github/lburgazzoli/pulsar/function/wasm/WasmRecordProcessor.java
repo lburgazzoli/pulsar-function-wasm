@@ -20,13 +20,9 @@ import com.dylibso.chicory.runtime.WasmFunctionHandle;
 import com.dylibso.chicory.runtime.exceptions.WASMMachineException;
 import com.dylibso.chicory.wasm.types.Value;
 import com.dylibso.chicory.wasm.types.ValueType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class WasmRecordProcessor implements AutoCloseable, Function<Context, Record<byte[]>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(WasmFunction.class);
-
-    public static final ObjectMapper MAPPER = JsonMapper.builder().build();
 
     public static final String MODULE_NAME = "env";
     public static final String FN_ALLOC = "alloc";
@@ -40,13 +36,16 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
     private final ExportFunction alloc;
     private final ExportFunction dealloc;
 
+    private final Object lock;
     private final AtomicReference<WasmRecord> ref;
 
     public WasmRecordProcessor(
         Module module,
         String functionName) {
 
+        this.lock = new Object();
         this.ref = new AtomicReference<>();
+
         this.module = Objects.requireNonNull(module);
         this.functionName = Objects.requireNonNull(functionName);
         this.instance = this.module.instantiate(imports());
@@ -57,46 +56,50 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
 
     @Override
     public Record<byte[]> apply(Context context) {
-        try {
-            WasmRecord ctx = new WasmRecord(context);
+        //
+        // TODO: check if this is really needed i.e. on Kafka Connect the
+        //       transformation pipeline is single threaded
+        //
+        synchronized (lock) {
+            try {
+                ref.set(new WasmRecord(context));
 
-            ref.set(ctx);
+                Value[] results = function.apply();
 
-            Value[] results = function.apply();
+                if (results != null) {
+                    int outAddr = -1;
+                    int outSize = 0;
 
-            if (results != null) {
-                int outAddr = -1;
-                int outSize = 0;
+                    try {
+                        long ptrAndSize = results[0].asLong();
 
-                try {
-                    long ptrAndSize = results[0].asLong();
+                        outAddr = (int) (ptrAndSize >> 32);
+                        outSize = (int) ptrAndSize;
 
-                    outAddr = (int) (ptrAndSize >> 32);
-                    outSize = (int) ptrAndSize;
+                        // assume the max output is 31 bit, leverage the first bit for
+                        // error detection
+                        if (isError(outSize)) {
+                            int errSize = errSize(outSize);
+                            String errData = instance.memory().readString(outAddr, errSize);
 
-                    // assume the max output is 31 bit, leverage the first bit for
-                    // error detection
-                    if (isError(outSize)) {
-                        int errSize = errSize(outSize);
-                        String errData = instance.memory().readString(outAddr, errSize);
-
-                        throw new WasmFunctionException(this.functionName, errData);
-                    }
-                } finally {
-                    if (outAddr != -1) {
-                        dealloc.apply(Value.i32(outAddr), Value.i32(outSize));
+                            throw new WasmFunctionException(this.functionName, errData);
+                        }
+                    } finally {
+                        if (outAddr != -1) {
+                            dealloc.apply(Value.i32(outAddr), Value.i32(outSize));
+                        }
                     }
                 }
-            }
 
-            return ref.get().record();
-        } catch (WASMMachineException e) {
-            LOGGER.warn("message: {}, stack {}", e.getMessage(), e.stackFrames());
-            throw new RuntimeException(e);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            ref.set(null);
+                return ref.get().record();
+            } catch (WASMMachineException e) {
+                LOGGER.warn("message: {}, stack {}", e.getMessage(), e.stackFrames());
+                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                ref.set(null);
+            }
         }
     }
 

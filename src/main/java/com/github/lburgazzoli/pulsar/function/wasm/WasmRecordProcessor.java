@@ -337,7 +337,7 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
         final byte[] rawData = this.ref.get().schema().getSchemaInfo().getSchema();
 
         return new Value[] {
-            write(rawData)
+                write(rawData)
         };
     }
 

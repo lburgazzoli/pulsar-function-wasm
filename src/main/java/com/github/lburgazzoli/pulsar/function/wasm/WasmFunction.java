@@ -42,7 +42,7 @@ public class WasmFunction implements org.apache.pulsar.functions.api.Function<by
 
     /*
      * TODO At this stage, we require to receive the serialized record value, but at some
-     *      point it would be nice to receive the value as it is and then encode/decode ti
+     *      point it would be nice to receive the value as it is and then encode/decode it
      *      on demand leveraging the associated schema.
      */
     @Override

@@ -1,5 +1,5 @@
 [versions]
-log4j = "2.22.1"
+log4j = "2.23.0"
 slf4j = "2.0.12"
 assertj = "3.25.3"
 junit = "5.10.2"

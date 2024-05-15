@@ -10,7 +10,7 @@ jackson = "2.17.0"
 guava = "33.2.0-jre"
 groovy = "4.0.18"
 spock = "2.3-groovy-4.0"
-chicory = "0.0.9"
+chicory = "0.0.10"
 
 versionsPlugin = "0.51.0"
 spotlessPlugin = "6.25.0"

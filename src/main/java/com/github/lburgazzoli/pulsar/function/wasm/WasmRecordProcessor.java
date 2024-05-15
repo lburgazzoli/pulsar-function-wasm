@@ -48,7 +48,7 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
         this.ref = new AtomicReference<>();
 
         this.functionName = Objects.requireNonNull(functionName);
-        this.instance = module.instantiate(imports());
+        this.instance = module.withHostImports(imports()).instantiate();
         this.function = this.instance.export(this.functionName);
         this.alloc = this.instance.export(FN_ALLOC);
         this.dealloc = this.instance.export(FN_DEALLOC);

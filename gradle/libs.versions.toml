@@ -17,7 +17,7 @@ spotlessPlugin = "6.25.0"
 shadowPlugin = "8.1.1"
 testLoggerPlugin = "4.0.0"
 nexusPublishPlugin = "2.0.0"
-axionReleasePlugin = "1.17.2"
+axionReleasePlugin = "1.18.2"
 testRetryPlugin = "1.5.9"
 
 [libraries]

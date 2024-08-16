@@ -1,11 +1,9 @@
 package com.github.lburgazzoli.pulsar.function.wasm;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.apache.pulsar.functions.api.Context;
 import org.apache.pulsar.functions.api.Record;
-
-import com.dylibso.chicory.runtime.Module;
 
 public class WasmFunction implements org.apache.pulsar.functions.api.Function<byte[], Record<byte[]>> {
     public static final String KEY_MODULE = "module";
@@ -27,7 +25,7 @@ public class WasmFunction implements org.apache.pulsar.functions.api.Function<by
             .orElseThrow(() -> new IllegalArgumentException("Missing " + WasmFunction.KEY_FUNCTION + " config"));
 
         this.runner = new WasmRecordProcessor(
-            Module.builder(new File(module)).build(),
+            Path.of(module),
             function);
 
     }

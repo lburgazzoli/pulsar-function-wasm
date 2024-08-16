@@ -1,5 +1,6 @@
 package com.github.lburgazzoli.pulsar.function.wasm;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -38,17 +39,17 @@ public class WasmRecordProcessor implements AutoCloseable, Function<Context, Rec
     private final AtomicReference<WasmRecord> ref;
 
     public WasmRecordProcessor(
-        Module module,
+        Path modulePath,
         String functionName) {
 
-        Objects.requireNonNull(module);
+        Objects.requireNonNull(modulePath);
         Objects.requireNonNull(functionName);
 
         this.lock = new Object();
         this.ref = new AtomicReference<>();
 
         this.functionName = Objects.requireNonNull(functionName);
-        this.instance = module.withHostImports(imports()).instantiate();
+        this.instance = Module.builder(modulePath).withHostImports(imports()).build().instantiate();
         this.function = this.instance.export(this.functionName);
         this.alloc = this.instance.export(FN_ALLOC);
         this.dealloc = this.instance.export(FN_DEALLOC);

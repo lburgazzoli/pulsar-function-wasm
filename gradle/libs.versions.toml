@@ -1,7 +1,7 @@
 [versions]
 log4j = "2.23.1"
 slf4j = "2.0.16"
-assertj = "3.26.0"
+assertj = "3.26.3"
 junit = "5.11.0"
 testcontainers = "1.19.8"
 awaitility = "4.2.1"

@@ -2,7 +2,7 @@
 log4j = "2.23.1"
 slf4j = "2.0.16"
 assertj = "3.26.3"
-junit = "5.11.0"
+junit = "5.11.1"
 testcontainers = "1.20.1"
 awaitility = "4.2.1"
 pulsar = "3.3.1"

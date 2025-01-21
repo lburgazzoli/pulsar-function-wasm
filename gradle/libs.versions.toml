@@ -18,7 +18,7 @@ shadowPlugin = "8.1.1"
 testLoggerPlugin = "4.0.0"
 nexusPublishPlugin = "2.0.0"
 axionReleasePlugin = "1.18.16"
-testRetryPlugin = "1.6.0"
+testRetryPlugin = "1.6.1"
 
 [libraries]
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
